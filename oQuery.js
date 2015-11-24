@@ -9,22 +9,52 @@
      * querySelector y querySelectorAll
      *
      * Ej:
-     *   $("html > body");
+     *   o$("html > body");
      *
-     *   div.$("ul > li");
+     *   div.o$("ul > li");
+     *
+     *   o$("<input type=''>")
      */
     o$ = function(selector) {
         // Si la funcion es llamada con window, entonces usar document
         // si no entonces usar el elemento
         var self = this === window ? document : this;
 
-        // Obtenemos todas las coincidencias
-        var elemento = self.querySelectorAll( selector );
+        var elemento;
 
-        // Si existe mas de una retornar como arreglo,
-        // si no entonces solo retornar la encontrada
+        if( (selector[0] === "<") && (selector[selector.length - 1] === ">") ) {
+            var tag = selector.split(/[<|>]/)[1];
+            var split = tag.split(" ");
+            var len = split.length;
+            elemento = split[0];
+            var attrs = [];
+            for( var i = 1; i < len; i++ ) {
+                var attr = split.pop();
+                if( attr !== elemento )
+                    attrs.push( attr );
+            }
 
-        elemento = elemento.length > 1 ? elemento: elemento[0];
+            elemento = document.createElement(elemento);
+
+            len = attrs.length;
+
+            for( i = 0; i < len; i ++ ) {
+                var atr = attrs[i].split("=");
+                elemento.attr( atr[0], atr[1].split(/["|']/)[1] );
+            }
+
+            if( self !== document )
+                this.appendChild(elemento);
+        }
+        else {
+            // Obtenemos todas las coincidencias
+            elemento = self.querySelectorAll( selector );
+
+            // Si existe mas de una retornar como arreglo,
+            // si no entonces solo retornar la encontrada
+
+            elemento = elemento.length > 1 ? elemento: elemento[0];
+        }
 
         return elemento;
     };
@@ -44,6 +74,16 @@
         alert("hola");
     };
 
+    HTMLElement.prototype.attr = function( attr, value ) {
+        if( typeof attr == "object" ) {
+            for( var key in attr ) {
+                this.setAttribute(key, attr[key]);
+            }
+        }
+        else {
+            this.setAttribute(attr, value);
+        }
+    };
 
     /*
      * Esta metodo añade una nueva clase al elemento html
@@ -127,7 +167,7 @@
         var node = this.parentNode.first();
 
         while( node ) {
-            if( node !== this )
+            if( node !== this && node.nodeType != 3 )
                 result.push( node );
             node = node.nextSibling;
         }
@@ -147,16 +187,305 @@
     };
 
     HTMLElement.prototype.last = function () {
-        var last = this.firstChild;
-        var next = last.nextSibling;
+        var len = this.children.length - 1;
+        return this.children[ len ];
+    };
 
-        while( next && last.nodeType === 3 ) {
-            next = last.nextSibling;
+    // this.valueOf(); <- Obtiene el valor del objeto
 
+    /*
+     ################################################
+     #				  Validaciones				   #
+     ################################################
+     */
+
+    /*
+     Description:
+     Esta funcion verifica si la variable contiene solamente numeros
+
+     Syntax:
+     variable.isDigit();
+
+     retorna  1 si contiene solo numeros
+     retorna  0 si no tiene solo numeros
+     retorna -1 si no se puede evaluar
+     */
+    String.prototype.isDigit = function() {
+        var value = this.valueOf();
+        if( typeof value === "string" ) {
+            if( value === "" )
+                return 0;
+
+            var numbers = "0123456789";
+
+            for( var i = value.length - 1; i >= 0; i-- ) {
+                if ( numbers.indexOf( value.charAt( i ) ) == -1 )
+                    return 0;
+            }
+            return 1;
         }
+        else if( typeof value === "number" )
+            return 1;
+        else
+            return -1;
+    };
 
-        return last;
-    }
+    /*
+     Description:
+     Esta funcion verifica si la variable contiene solamente letras
+
+     Syntax:
+     variable.isAlpha();
+
+     retorna  1 si contiene solo letras
+     retorna  0 si no tiene solo letras
+     retorna -1 si no se puede evaluar
+     */
+    String.prototype.isAlpha = function() {
+        var value = this.valueOf();
+        if( typeof value === "string" ) {
+            value = value.toLowerCase();
+            if( value === "" )
+                return 0;
+
+            var chars = "abcdefghiyjklmnñopqrstuvwxyz";
+
+            for( var i = value.length - 1; i >= 0; i-- ) {
+                if ( chars.indexOf( value.charAt( i ) ) == -1 )
+                    return 0;
+            }
+            return 1;
+        }
+        else
+            return -1;
+    };
+
+    /*
+     Description:
+     Esta funcion verifica si la variable contiene solamente minusculas
+
+     Syntax:
+     variable.isLower();
+
+     retorna  1 si contiene solo minusculas
+     retorna  0 si no tiene solo minusculas
+     retorna -1 si no se puede evaluar
+     */
+    String.prototype.isLower = function() {
+        var value = this.valueOf();
+        if( typeof value === "string" ) {
+            if( value === "" )
+                return 0;
+
+            var chars = "abcdefghiyjklmnñopqrstuvwxyz ";
+
+            for( var i = value.length - 1; i >= 0; i-- ) {
+                if ( chars.indexOf( value.charAt( i ) ) == -1 )
+                    return 0;
+            }
+            return 1;
+        }
+        else
+            return -1;
+    };
+
+    /*
+     Description:
+     Esta funcion verifica si la variable contiene solamente mayusculas
+
+     Syntax:
+     variable.isUpper();
+
+     retorna  1 si contiene solo mayusculas
+     retorna  0 si no tiene solo mayusculas
+     retorna -1 si no se puede evaluar
+     */
+    String.prototype.isUpper = function() {
+        var value = this.valueOf();
+        if( typeof value === "string" ) {
+            if( value === "" )
+                return 0;
+
+            var chars = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ ";
+
+            for( var i = value.length - 1; i >= 0; i-- ) {
+                if ( chars.indexOf( value.charAt( i ) ) == -1 )
+                    return 0;
+            }
+            return 1;
+        }
+        else
+            return -1;
+    };
+
+    /*
+     Description:
+     Esta funcion verifica si la variable contiene solamente espacios
+
+     Syntax:
+     variable.isSpace();
+
+     retorna  1 si contiene solo espacios
+     retorna  0 si no tiene solo espacios
+     retorna -1 si no se puede evaluar
+     */
+    String.prototype.isSpace = function() {
+        var value = this.valueOf();
+        if( typeof value === "string" ) {
+            if( value === "" )
+                return 0;
+
+            var space = " ";
+
+            for( var i = value.length - 1; i >= 0; i-- ) {
+                if ( space.indexOf( value.charAt( i ) ) == -1 )
+                    return 0;
+            }
+            return 1;
+        }
+        else
+            return -1;
+    };
+
+    /*
+     Description:
+     Esta funcion verifica si la variable tiene formato de titulo
+
+     Syntax:
+     variable.isTitle();
+
+     retorna  1 si tiene formato de titulo
+     retorna  0 si no tiene formato de titulo
+     retorna -1 si no se puede evaluar
+     */
+    String.prototype.isTitle = function() {
+        var value = this.valueOf();
+        if( typeof value[0] === "string" ) {
+            value = value.split(" ");
+            if( value[0] === "" )
+                return 0;
+
+            var chars = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+
+            for ( var i = value.length - 1; i >= 0; i--) {
+                if( chars.indexOf( value[i].charAt( 0 ) ) == -1 )
+                    return 0;
+            }
+            return 1;
+        }
+        else
+            return -1;
+    };
+
+    /*
+     Description:
+     Esta funcion verifica si la variable es Alfanumerica
+
+     Syntax:
+     variable.isAlNum();
+
+     retorna  1 si es alfanumerica
+     retorna  0 si no es alfanumerica
+     retorna -1 si no se puede evaluar
+     */
+    String.prototype.isAlnum = function() {
+        var value = this.valueOf();
+        if( typeof value === "string" ) {
+            value = value.toLowerCase();
+            if( value === "" )
+                return 0;
+
+            var numbers = "0123456789";
+            var chars = "abcdefghiyjklmnñopqrstuvwxyz";
+
+            var isChar;
+            var isNumber;
+
+            for ( var i = value.length - 1; i >= 0; i--) {
+                isChar = (chars.indexOf( value[i].charAt( 0 ) ) == -1);
+                isNumber = (numbers.indexOf( value[i].charAt( 0 ) ) == -1);
+
+                if( isChar && isNumber )
+                    return 0;
+            }
+            return 1;
+        }
+        else
+            return -1;
+    };
+
+    /*
+     Description:
+     Cuenta cuantas veces aparece el texto que le pasamos
+
+     Syntax:
+     variable.countChar( char );
+
+     retorna  n si el caracte se repitio n veces
+     retorna  0 si no esta el caracte
+     retorna -1 si no se pudo evaluar
+     */
+    String.prototype.countChar = function( char ) {
+        var value = this.valueOf();
+    };
+
+    /*
+     ################################################
+     #				   Conversion				   #
+     ################################################
+     */
+
+    /*
+     Description:
+     Esta funcion convierte la primera letra a mayuscula
+
+     Syntax:
+     variable.toCapitalize();
+     */
+    String.prototype.toCapitalize = function() {
+        var value = this.valueOf();
+        if( typeof value === "string" ) {
+            return value[0].toUpperCase() + value.slice( 1 );
+        }
+    };
+
+    /*
+     Description:
+     Esta funcion convierte las minusculas a mayusculas y viceversa
+
+     Syntax:
+     variable.toSwapcase();
+     */
+    String.prototype.toSwapcase = function() {
+        var value = this.valueOf();
+        if( typeof value === "string" ) {
+            for (var i = value.length - 1; i >= 0; i--) {
+                if( value[i].isLower() === 1 )
+                    value[i] = value[i].toUpperCase();
+                else if( value[i].isUpper() === 1 )
+                    value[i] = value[i].toLowerCase();
+            }
+        }
+    };
+
+    /*
+     Description:
+     Esta funcion convierte la cadena a formato de titulo
+
+     Syntax:
+     variable.toTitle();
+     */
+    String.prototype.toTitle = function() {
+        var value = this.valueOf();
+        if( typeof value === "string" ) {
+            value = value.split(" ");
+            for (var i = value.length - 1; i >= 0; i--) {
+                value[i] = value[i][0].toUpperCase() + value[i].slice( 1 );
+            }
+            return value.join(" ");
+        }
+    };
+
 
 })();
 
