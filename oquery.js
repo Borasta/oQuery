@@ -64,10 +64,29 @@
     NodeList.prototype.o$ = function( selector ) {
         var list = this;
         var aLen = list.length;
-        var result = [];
-        for( var i = 0; i < aLen; i++ )
-            result.push(list[i].o$(selector));
+        var result = document.createElement("div");
+        for( var i = 0; i < aLen; i++ ) {
+            var element = list[i].o$(selector);
+            if( element ) {
+                element.addClass("oQueryTempClass");
+                result.appendChild( element )
+            }
+        }
+        result = result.querySelectorAll(".oQueryTempClass");
+        result.removeClass("oQueryTempClass");
         return result;
+    };
+
+    HTMLElement.prototype.remove = function() {
+        var parent = this.parentNode;
+        parent.removeChild(this);
+    };
+
+    NodeList.prototype.remove = function() {
+        var list = this;
+        var aLen = list.length;
+        for( var i = 0; i < aLen; i++ )
+            list[i].remove();
     };
 
     o$.ajax = function() {
@@ -150,6 +169,16 @@
         var len = this.length;
         for( var i = 0; i < len; i++ )
             this[i].removeClass( classToRemove );
+    };
+
+    HTMLElement.prototype.removeAllClass = function() {
+        this.className = "";
+    };
+
+    NodeList.prototype.removeAllClass = function() {
+        var len = this.length;
+        for( var i = 0; i < len; i++ )
+            this[i].removeAllClass();
     };
 
     HTMLElement.prototype.haveClass = function( haveit ) {
