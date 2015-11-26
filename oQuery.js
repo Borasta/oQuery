@@ -23,7 +23,7 @@
         var elemento;
 
         if( (selector[0] === "<") && (selector[selector.length - 1] === ">") ) {
-            var tag = selector.split(/[<|>]/)[1];
+            var tag = selector.replace("<", "").replace(">", "");
             var split = tag.split(" ");
             var len = split.length;
             elemento = split[0];
@@ -74,15 +74,40 @@
         alert("hola");
     };
 
-    HTMLElement.prototype.attr = function( attr, value ) {
-        if( typeof attr == "object" ) {
-            for( var key in attr ) {
-                this.setAttribute(key, attr[key]);
+    HTMLElement.prototype.attr = function( attribute, value ) {
+        if( typeof attribute == "object" ) {
+            for( var key in attribute ) {
+                this.setAttribute(key, attribute[key]);
             }
         }
         else {
-            this.setAttribute(attr, value);
+            this.setAttribute(attribute, value);
         }
+    };
+
+    NodeList.prototype.attr = function( attribute, value ) {
+        var list = this;
+        var aLen = list.length;
+        for( var i = 0; i < aLen; i++ )
+            list[i].attribute( attribute, value );
+    };
+
+    HTMLElement.prototype.css = function( style, value ) {
+        if( typeof style == "object" ) {
+            for( var key in style ) {
+                this.style[key] = style[key];
+            }
+        }
+        else {
+            this.style[style] = value;
+        }
+    };
+
+    NodeList.prototype.css = function( style, value ) {
+        var list = this;
+        var aLen = list.length;
+        for( var i = 0; i < aLen; i++ )
+            list[i].css( style, value );
     };
 
     /*
@@ -187,8 +212,10 @@
     };
 
     HTMLElement.prototype.last = function () {
-        var len = this.children.length - 1;
-        return this.children[ len ];
+        var first = this.first();
+        var siblings = first.siblings();
+        var siblingsLen = siblings.length;
+        return siblingsLen >= 1 ? siblings[siblingsLen] : first;
     };
 
     // this.valueOf(); <- Obtiene el valor del objeto
