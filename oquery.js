@@ -206,7 +206,8 @@
         }
 
         brothers = parent.o$(".oQueryTempClass");
-        brothers.removeClass("oQueryTempClass");
+        if( brothers )
+            brothers.removeClass("oQueryTempClass");
         return brothers;
     };
 
