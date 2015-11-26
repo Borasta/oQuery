@@ -121,15 +121,13 @@
      *   Element.addClass("nuevaClase");
      */
     HTMLElement.prototype.addClass = function( newClass ) {
+        this.classList.add(newClass);
+    };
+
+    NodeList.prototype.addClass = function( newClass ) {
         var len = this.length;
-        if( len !== undefined )
-            for( var i = 0; i < len; i++ )
-                this[i].addClass(newClass);
-        else
-        if( this.className === "" )
-            this.className = newClass;
-        else
-            this.className += " " + newClass;
+        for( var i = 0; i < len; i++ )
+            this[i].addClass(newClass);
     };
 
     /*
@@ -145,14 +143,7 @@
      *   Element.removeClass("claseAQuitar");
      */
     HTMLElement.prototype.removeClass = function( classToRemove ) {
-        var classes = this.className.split(" ");
-        var classesLen = classes.length;
-        var newClass = "";
-        for( var j = 0; j < classesLen; j++ )
-            if( classes[j] !== classToRemove )
-                newClass += classes[j] + ( j + 1 != classesLen ? " " : "" );
-
-        this.className = newClass;
+        this.classList.remove( classToRemove );
     };
 
     NodeList.prototype.removeClass = function( classToRemove ) {
@@ -160,6 +151,19 @@
         for( var i = 0; i < len; i++ )
             this[i].removeClass( classToRemove );
     };
+
+    HTMLElement.prototype.haveClass = function( haveit ) {
+        return this.classList.contains( haveit );
+    };
+
+    NodeList.prototype.haveClass = function( haveit ) {
+        var len = this.length;
+        var result = [];
+        for( var i = 0; i < len; i++ )
+            result.push( this[i].haveClass( haveit ) );
+        return result;
+    };
+
 
     /*
      * Esta metodo añade un nuevo evento al elemento
