@@ -176,12 +176,13 @@
      *   Element.addEvent("click", function() { alert("hola") }, true);
      */
     HTMLElement.prototype.addEvent = function( type, listener, useCapture ) {
+        this.addEventListener(type, listener, useCapture);
+    };
+
+    NodeList.prototype.addEvent = function( type, listener, useCapture ) {
         var len = this.length;
-        if( len !== undefined && this !== window )
-            for( var i = 0; i < len; i++ )
-                this[i].addEventListener(type, listener, useCapture);
-        else
-            this.addEventListener(type, listener, useCapture);
+        for( var i = 0; i < len; i++ )
+            this[i].addEventListener(type, listener, useCapture);
     };
 
     /*
@@ -192,14 +193,28 @@
      *   Element.siblings();
      */
     HTMLElement.prototype.siblings = function() {
-        var result = [];
-        var node = this.parentNode.first();
+        var brothers = [];
+        var parent = this.parentNode;
+        var node = parent.first();
 
         while( node ) {
-            if( node !== this && node.nodeType != 3 )
-                result.push( node );
+            if( node !== this && node.nodeType != 3 ) {
+                node.addClass("oQueryTempClass");
+                brothers.push( node );
+            }
             node = node.nextSibling;
         }
+
+        brothers = parent.o$(".oQueryTempClass");
+        brothers.removeClass("oQueryTempClass");
+        return brothers;
+    };
+
+    NodeList.prototype.siblings = function() {
+        var len = this.length;
+        var result = [];
+        for( var i = 0; i < len; i++ )
+            result.push( this[i].siblings() );
         return result;
     };
 
