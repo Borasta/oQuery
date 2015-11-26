@@ -145,20 +145,20 @@
      *   Element.removeClass("claseAQuitar");
      */
     HTMLElement.prototype.removeClass = function( classToRemove ) {
-        var len = this.length;
-        if( len !== undefined )
-            for( var i = 0; i < len; i++ )
-                this[i].removeClass( classToRemove );
-        else {
-            var classes = this.className.split(" ");
-            var classesLen = classes.length;
-            var newClass = "";
-            for( var j = 0; j < classesLen; j++ )
-                if( classes[j] !== classToRemove )
-                    newClass += classes[j] + ( j + 1 != classesLen ? " " : "" );
+        var classes = this.className.split(" ");
+        var classesLen = classes.length;
+        var newClass = "";
+        for( var j = 0; j < classesLen; j++ )
+            if( classes[j] !== classToRemove )
+                newClass += classes[j] + ( j + 1 != classesLen ? " " : "" );
 
-            this.className = newClass;
-        }
+        this.className = newClass;
+    };
+
+    NodeList.prototype.removeClass = function( classToRemove ) {
+        var len = this.length;
+        for( var i = 0; i < len; i++ )
+            this[i].removeClass( classToRemove );
     };
 
     /*
