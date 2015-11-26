@@ -199,10 +199,6 @@
         return result;
     };
 
-    NodeList.prototype.first = function() {
-        console.log(this.length)
-    };
-
     HTMLElement.prototype.first = function () {
         var firts = this.firstChild;
         while( firts && firts.nodeType === 3 )
@@ -210,6 +206,16 @@
 
         return firts;
     };
+
+    NodeList.prototype.first = function() {
+        var list = this;
+        var aLen = list.length;
+        var result = [];
+        for( var i = 0; i < aLen; i++ )
+            result.push( list[i].first() );
+        return result;
+    };
+
 
     HTMLElement.prototype.last = function () {
         var first = this.first();
